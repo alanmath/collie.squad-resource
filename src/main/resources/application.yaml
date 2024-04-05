@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: collie-squad
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/collie}
+    username: ${DATABASE_USERNAME:collie}
+    password: ${DATABASE_PASSWORD:collie123321}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    baseline-on-migrate: true
+    schemas: squad
+  jpa:
+    properties:
+      hibernate:
+        default_schema: squad
+
+management:
+  endpoints:
+    web:
+      base-path: /squad/actuator
+      exposure:
+        include: [ 'prometheus' ]
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
