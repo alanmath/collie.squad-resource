@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+
+
+
 @RestController
 public class SquadResource implements SquadController {
 
@@ -23,6 +26,10 @@ public class SquadResource implements SquadController {
         Squad squad = SquadParser.to(in);
         // insert using service
         squad = squadService.create(squad);
+
+        if (squad == null){
+            return ResponseEntity.notFound().build();
+        }
         // return
         return ResponseEntity.created(
             ServletUriComponentsBuilder
@@ -34,13 +41,13 @@ public class SquadResource implements SquadController {
     }
 
     @Override
-    public ResponseEntity<SquadInfo> getSquad(String id){
+    public ResponseEntity<SquadAllInfo> getSquad(String id){
 
-        Squad squad = squadService.getSquad(id);
+        SquadAllInfo squad = squadService.getSquad(id);
         if (squad == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(SquadParser.to(squad));
+        return ResponseEntity.ok(squad);
     }
 
     @Override
@@ -60,12 +67,12 @@ public class SquadResource implements SquadController {
     @Override
     public ResponseEntity<SquadInfo> updateSquad(String id, SquadInfo in){
 
-        Squad Squad = SquadParser.to(in);
-        Squad = squadService.update(id, Squad);
-        if (Squad == null) {
+        Squad squad = SquadParser.to(in);
+        squad = squadService.update(id, squad);
+        if (squad == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(SquadParser.to(Squad));
+        return ResponseEntity.ok(SquadParser.to(squad));
     }
 
     @Override
