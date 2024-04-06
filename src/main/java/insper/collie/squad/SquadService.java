@@ -17,7 +17,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
-
+import insper.collie.account.AccountController;
+import insper.collie.account.AccountOut;
 import insper.collie.company.CompanyController;
 import insper.collie.company.CompanyInfo;
 
@@ -31,13 +32,25 @@ public class SquadService {
     @Autowired
     private CompanyController companyController;
 
+    @Autowired
+    private AccountController accountController;
+
     public Squad create(Squad in) {
 
-        ResponseEntity<Boolean> response = companyController.isCompany(in.company_id());
+        ResponseEntity<Boolean> responseCompany = companyController.isCompany(in.company_id());
 
         // verifica se a empresa de fato existe
-        if (response != null){
-            if (!response.getBody()){
+        if (responseCompany != null){
+            if (!responseCompany.getBody()){
+                return null;
+            }
+        }else return null;
+
+        ResponseEntity<Boolean> responseAccount = accountController.isAccount(in.manager_id());
+
+        // verifica se a empresa de fato existe
+        if (responseAccount != null){
+            if (!responseAccount.getBody()){
                 return null;
             }
         }else return null;
@@ -53,9 +66,15 @@ public class SquadService {
 
         ResponseEntity<CompanyInfo> response = companyController.getCompany(squad.company_id());
         if (response == null) return null;
-        
+
         CompanyInfo company = response.getBody();
-        SquadAllInfo squadAll = SquadParser.toAll(squad, company);
+
+        ResponseEntity<AccountOut> responseA = accountController.getAccount(squad.manager_id());
+        if (responseA == null) return null;
+        
+        AccountOut manager = responseA.getBody();
+
+        SquadAllInfo squadAll = SquadParser.toAll(squad, company, manager);
         
         return squadAll;
     }
@@ -96,6 +115,17 @@ public class SquadService {
                 }
             }else return null;
             squad.company_id(in.company_id());
+        }
+        if(in.manager_id() != null){
+            ResponseEntity<Boolean> responseA = accountController.isAccount(in.manager_id());
+
+            // verifica se a empresa de fato existe
+            if (responseA != null){
+                if (!responseA.getBody()){
+                    return null;
+                }
+            }else return null;
+            squad.manager_id(in.manager_id());
         }
 
         return squadRepository.save(squad).to();

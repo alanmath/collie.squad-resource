@@ -1,5 +1,6 @@
 package insper.collie.squad;
 
+import insper.collie.account.AccountOut;
 import insper.collie.company.CompanyInfo;
 
 public class SquadParser {
@@ -25,7 +26,7 @@ public class SquadParser {
     }
 
 
-    public static SquadAllInfo toAll(Squad in, CompanyInfo c) {
+    public static SquadAllInfo toAll(Squad in, CompanyInfo c, AccountOut a) {
         return SquadAllInfo.builder()
             .id(in.id())
             .name(in.name())
@@ -34,6 +35,7 @@ public class SquadParser {
             .company_name(c.name())
             .company_description(c.description())
             .manager_id(in.manager_id())
+            .manager_name(a.name())
             .build();
     }
 }
