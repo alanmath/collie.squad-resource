@@ -6,7 +6,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients(basePackages = {
-    "insper.collie.company"
+    "insper.collie.company",
+    "insper.collie.account"
 })
 @EnableDiscoveryClient
 @SpringBootApplication
