@@ -1,36 +1,41 @@
 package insper.collie.squad;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
+@Tag(name = "Squad", description = "API do Squad")
 public class SquadResource implements SquadController {
 
     @Autowired
     private SquadService squadService;
 
     @Override
-    public ResponseEntity<SquadInfo> create(SquadInfo in) {
-        // parser
+    @Operation(summary = "Criar um novo Squad", description = "Cria um novo Squad e retorna o objeto criado com seu ID.",
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Squad criado com sucesso", content = @Content(schema = @Schema(implementation = SquadInfo.class))),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos")
+        })
+    public ResponseEntity<SquadInfo> create(@RequestBody(description = "Informações do Squad para a criação de um novo Squad.") SquadInfo in) {
         Squad squad = SquadParser.to(in);
-        // insert using service
         squad = squadService.create(squad);
 
         if (squad == null){
             return ResponseEntity.notFound().build();
         }
-        // return
         return ResponseEntity.created(
             ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -41,7 +46,12 @@ public class SquadResource implements SquadController {
     }
 
     @Override
-    public ResponseEntity<SquadAllInfo> getSquad(String id){
+    @Operation(summary = "Obter um Squad", description = "Obtém as informações de um Squad específico pelo seu ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Squad encontrado", content = @Content(schema = @Schema(implementation = SquadAllInfo.class))),
+            @ApiResponse(responseCode = "404", description = "Squad não encontrado")
+        })
+    public ResponseEntity<SquadAllInfo> getSquad(@Parameter(description = "ID do Squad a ser obtido") String id){
 
         SquadAllInfo squad = squadService.getSquad(id);
         if (squad == null) {
@@ -51,6 +61,11 @@ public class SquadResource implements SquadController {
     }
 
     @Override
+    @Operation(summary = "Obter todos os Squads", description = "Obtém uma lista de todos os Squads.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de Squads encontrada", content = @Content(schema = @Schema(implementation = SquadInfo[].class))),
+            @ApiResponse(responseCode = "404", description = "Nenhum Squad encontrado")
+        })
     public ResponseEntity<List<SquadInfo>> getAllSquads(){
 
         List<Squad> squads = squadService.getAllSquads();
@@ -65,7 +80,13 @@ public class SquadResource implements SquadController {
     }
 
     @Override
-    public ResponseEntity<SquadInfo> updateSquad(String id, SquadInfo in){
+    @Operation(summary = "Atualizar um Squad", description = "Atualiza as informações de um Squad específico.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Squad atualizado com sucesso", content = @Content(schema = @Schema(implementation = SquadInfo.class))),
+            @ApiResponse(responseCode = "404", description = "Squad não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos")
+        })
+    public ResponseEntity<SquadInfo> updateSquad(@Parameter(description = "ID do Squad a ser atualizado") String id, @RequestBody(description = "Informações atualizadas do Squad.") SquadInfo in){
 
         Squad squad = SquadParser.to(in);
         squad = squadService.update(id, squad);
@@ -76,14 +97,17 @@ public class SquadResource implements SquadController {
     }
 
     @Override
-    public ResponseEntity<SquadInfo> deleteSquad(String id){
+    @Operation(summary = "Deletar um Squad", description = "Deleta um Squad específico pelo seu ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Squad deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Squad não encontrado")
+        })
+    public ResponseEntity<SquadInfo> deleteSquad(@Parameter(description = "ID do Squad a ser deletado") String id){
 
-        String r = squadService.delete(id);
-        if (r == null) {
+        String result = squadService.delete(id);
+        if (result == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().build();
     }
-
-    
 }

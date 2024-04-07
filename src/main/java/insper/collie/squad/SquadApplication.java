@@ -15,5 +15,4 @@ public class SquadApplication {
     public static void main(String[] args) {
         SpringApplication.run(SquadApplication.class, args);
     }
-    
 }
