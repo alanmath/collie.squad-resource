@@ -75,6 +75,13 @@ public class SquadService {
     }
 
     @Transactional(readOnly = true)
+    public Boolean isSquad(String id){
+        return squadRepository.existsById(id);
+    }
+
+
+
+    @Transactional(readOnly = true)
     public List<Squad> getAllSquads() {
         List<Squad> squads = new ArrayList<Squad>();
 

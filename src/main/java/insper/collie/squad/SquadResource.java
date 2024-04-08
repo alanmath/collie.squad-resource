@@ -55,6 +55,17 @@ public class SquadResource implements SquadController {
     }
 
     @Override
+    @Operation(summary = "Verificar se o Squad existe", description = "Verifica se um squad específico existe pelo seu ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Squad encontrado", content = @Content(schema = @Schema(implementation = SquadAllInfo.class))),
+        })
+    public ResponseEntity<Boolean> isSquad(@Parameter(description = "ID do Squad a ser obtido") String id){
+
+        Boolean isSquad = squadService.isSquad(id);
+        return ResponseEntity.ok(isSquad);
+    }
+
+    @Override
     @Operation(summary = "Obter todos os Squads", description = "Obtém uma lista de todos os Squads.",
         responses = {
             @ApiResponse(responseCode = "200", description = "Lista de Squads encontrada", content = @Content(schema = @Schema(implementation = SquadInfo[].class)))
