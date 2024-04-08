@@ -13,7 +13,7 @@ import insper.collie.account.AccountOut;
 import insper.collie.company.CompanyController;
 import insper.collie.company.CompanyInfo;
 import insper.collie.squad.exceptions.AccountNotFoundException;
-import insper.collie.squad.exceptions.CompanyNotFoundException;
+import insper.collie.company.exceptions.CompanyNotFoundException;
 import insper.collie.squad.exceptions.RequestErrorException;
 import insper.collie.squad.exceptions.SquadNotFoundException;
 

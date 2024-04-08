@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import insper.collie.squad.exceptions.AccountNotFoundException;
-import insper.collie.squad.exceptions.CompanyNotFoundException;
+import insper.collie.company.exceptions.CompanyNotFoundException;
 import insper.collie.squad.exceptions.RequestErrorException;
 import insper.collie.squad.exceptions.SquadNotFoundException;
 
