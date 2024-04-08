@@ -33,9 +33,6 @@ public class SquadResource implements SquadController {
         Squad squad = SquadParser.to(in);
         squad = squadService.create(squad);
 
-        if (squad == null){
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.created(
             ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -54,24 +51,17 @@ public class SquadResource implements SquadController {
     public ResponseEntity<SquadAllInfo> getSquad(@Parameter(description = "ID do Squad a ser obtido") String id){
 
         SquadAllInfo squad = squadService.getSquad(id);
-        if (squad == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(squad);
     }
 
     @Override
     @Operation(summary = "Obter todos os Squads", description = "Obtém uma lista de todos os Squads.",
         responses = {
-            @ApiResponse(responseCode = "200", description = "Lista de Squads encontrada", content = @Content(schema = @Schema(implementation = SquadInfo[].class))),
-            @ApiResponse(responseCode = "404", description = "Nenhum Squad encontrado")
+            @ApiResponse(responseCode = "200", description = "Lista de Squads encontrada", content = @Content(schema = @Schema(implementation = SquadInfo[].class)))
         })
     public ResponseEntity<List<SquadInfo>> getAllSquads(){
 
         List<Squad> squads = squadService.getAllSquads();
-        if (squads.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(
             squads.stream()
                 .map(SquadParser::to)
@@ -90,9 +80,6 @@ public class SquadResource implements SquadController {
 
         Squad squad = SquadParser.to(in);
         squad = squadService.update(id, squad);
-        if (squad == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(SquadParser.to(squad));
     }
 
@@ -103,11 +90,7 @@ public class SquadResource implements SquadController {
             @ApiResponse(responseCode = "404", description = "Squad não encontrado")
         })
     public ResponseEntity<SquadInfo> deleteSquad(@Parameter(description = "ID do Squad a ser deletado") String id){
-
-        String result = squadService.delete(id);
-        if (result == null) {
-            return ResponseEntity.notFound().build();
-        }
+        squadService.delete(id);
         return ResponseEntity.ok().build();
     }
 }

@@ -12,7 +12,7 @@ import insper.collie.account.AccountController;
 import insper.collie.account.AccountOut;
 import insper.collie.company.CompanyController;
 import insper.collie.company.CompanyInfo;
-import insper.collie.squad.exceptions.AccountNotFoundException;
+import insper.collie.account.exceptions.AccountNotFoundException;
 import insper.collie.company.exceptions.CompanyNotFoundException;
 import insper.collie.squad.exceptions.RequestErrorException;
 import insper.collie.squad.exceptions.SquadNotFoundException;
@@ -125,11 +125,10 @@ public class SquadService {
     }
 
     @Transactional
-    public String delete(String id) {
-        SquadModel c = squadRepository.findById(id).orElse(null);
-        if (c == null) throw new SquadNotFoundException(id);
-        squadRepository.deleteById(id);
-        return "ok";
+    public void delete(String id) {
+        // SquadModel c = squadRepository.findById(id).orElse(null);
+        if (squadRepository.existsById(id)) squadRepository.deleteById(id);
+        throw new SquadNotFoundException(id);
     }
     
 }
