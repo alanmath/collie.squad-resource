@@ -8,14 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import lombok.NonNull;
 import insper.collie.account.AccountController;
 import insper.collie.account.AccountOut;
 import insper.collie.company.CompanyController;
 import insper.collie.company.CompanyInfo;
+import insper.collie.squad.exceptions.AccountNotFoundException;
+import insper.collie.squad.exceptions.CompanyNotFoundException;
+import insper.collie.squad.exceptions.RequestErrorException;
+import insper.collie.squad.exceptions.SquadNotFoundException;
 
 
 @Service
@@ -37,18 +37,18 @@ public class SquadService {
         // verifica se a empresa de fato existe
         if (responseCompany != null){
             if (!responseCompany.getBody()){
-                return null;
+                throw new CompanyNotFoundException(in.company_id());
             }
-        }else return null;
+        }else throw new RequestErrorException("Company");
 
         ResponseEntity<Boolean> responseAccount = accountController.isAccount(in.manager_id());
 
         // verifica se a empresa de fato existe
         if (responseAccount != null){
             if (!responseAccount.getBody()){
-                return null;
+                throw new AccountNotFoundException(in.manager_id());
             }
-        }else return null;
+        }else throw new RequestErrorException("Account");
 
 
         return squadRepository.save(new SquadModel(in)).to();
@@ -57,15 +57,15 @@ public class SquadService {
     @Transactional(readOnly = true)
     public SquadAllInfo getSquad(String id) {
         Squad squad = squadRepository.findById(id).map(SquadModel::to).orElse(null);
-        if (squad == null) return null;
+        if (squad == null) throw new SquadNotFoundException(id);
 
         ResponseEntity<CompanyInfo> response = companyController.getCompany(squad.company_id());
-        if (response == null) return null;
+        if (response == null) throw new CompanyNotFoundException(squad.company_id());
 
         CompanyInfo company = response.getBody();
 
         ResponseEntity<AccountOut> responseA = accountController.getAccount(squad.manager_id());
-        if (responseA == null) return null;
+        if (responseA == null) throw new AccountNotFoundException(squad.manager_id());
         
         AccountOut manager = responseA.getBody();
 
@@ -88,9 +88,7 @@ public class SquadService {
     @Transactional
     public Squad update(String id, Squad in) {
         SquadModel c = squadRepository.findById(id).orElse(null);
-        if (c == null){
-            return null;
-        }
+        if (c == null) throw new SquadNotFoundException(id);
 
         SquadModel squad = c;
 
@@ -106,9 +104,9 @@ public class SquadService {
             // verifica se a empresa de fato existe
             if (response != null){
                 if (!response.getBody()){
-                    return null;
+                    throw new CompanyNotFoundException(in.manager_id());
                 }
-            }else return null;
+            }else throw new RequestErrorException("Company");
             squad.company_id(in.company_id());
         }
         if(in.manager_id() != null){
@@ -117,9 +115,9 @@ public class SquadService {
             // verifica se a empresa de fato existe
             if (responseA != null){
                 if (!responseA.getBody()){
-                    return null;
+                    throw new AccountNotFoundException(in.manager_id());
                 }
-            }else return null;
+            }else throw new RequestErrorException("Account");
             squad.manager_id(in.manager_id());
         }
 
@@ -129,9 +127,7 @@ public class SquadService {
     @Transactional
     public String delete(String id) {
         SquadModel c = squadRepository.findById(id).orElse(null);
-        if (c == null){
-            return null;
-        }
+        if (c == null) throw new SquadNotFoundException(id);
         squadRepository.deleteById(id);
         return "ok";
     }
