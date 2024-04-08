@@ -12,7 +12,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
-
+import insper.collie.account.AccountController;
+import insper.collie.account.AccountOut;
 import insper.collie.company.CompanyController;
 import insper.collie.company.CompanyInfo;
 
