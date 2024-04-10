@@ -5,7 +5,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -104,4 +106,21 @@ public class SquadResource implements SquadController {
         squadService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @Override
+    @Operation(summary = "Cadastrar Squads a partir de um CSV",
+    description = "Cadastra múltiplos Squads a partir das informações contidas em um arquivo CSV.",
+    responses = {
+        @ApiResponse(responseCode = "200", description = "Squads cadastrados com sucesso", content = @Content(schema = @Schema(implementation = SquadInfo.class))),
+        @ApiResponse(responseCode = "400", description = "Arquivo CSV inválido"),
+        @ApiResponse(responseCode = "500", description = "Erro interno no servidor")
+    })
+    public ResponseEntity<List<SquadInfo>> registerSquadsFromCSV(@RequestParam("file") MultipartFile file) {
+    if (file.isEmpty()) {
+        return ResponseEntity.badRequest().build();
+    }
+
+    List<SquadInfo> registeredSquads = squadService.registerSquadsFromCSV(file);
+    return ResponseEntity.ok(registeredSquads);
+}
 }

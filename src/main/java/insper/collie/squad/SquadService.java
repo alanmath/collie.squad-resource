@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import insper.collie.account.AccountController;
@@ -16,6 +19,11 @@ import insper.collie.account.exceptions.AccountNotFoundException;
 import insper.collie.company.exceptions.CompanyNotFoundException;
 import insper.collie.squad.exceptions.RequestErrorException;
 import insper.collie.squad.exceptions.SquadNotFoundException;
+// import commons
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
 
 @Service
@@ -137,5 +145,30 @@ public class SquadService {
         if (squadRepository.existsById(id)) squadRepository.deleteById(id);
         throw new SquadNotFoundException(id);
     }
+
+    @Transactional
+    public List<SquadInfo> registerSquadsFromCSV(MultipartFile file) {
+        List<SquadInfo> registeredSquadsInfo = new ArrayList<>();
+        try (CSVParser csvParser = new CSVParser(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8), 
+                CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim())) {
+            
+            Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+            for (CSVRecord record : csvRecords) {
+                String name = record.get("Name");
+                String description = record.get("Description");
+
+                SquadModel newSquad = new SquadModel(); 
+                newSquad.name(name);
+                newSquad.description(description);
+
+                SquadModel savedSquad = squadRepository.save(newSquad);
+                registeredSquadsInfo.add(SquadParser.to(savedSquad.to()));
+            }
+            return registeredSquadsInfo;
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao processar o arquivo CSV", e);
+        }
+    }
+    
     
 }
