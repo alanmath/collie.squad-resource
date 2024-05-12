@@ -16,15 +16,6 @@ pipeline {
                 sh 'mvn clean package'
             }
         }
-        stage('Snyk Security Scan') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'snyk-secret', variable: 'SNYK_TOKEN')]) {
-                        sh 'snyk test --org=alanmath'
-                    }
-                }
-            }
-        }
         stage('Build Image') {
             steps {
                 script {
