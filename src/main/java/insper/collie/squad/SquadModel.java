@@ -32,8 +32,8 @@ public class SquadModel {
     @Column
     String description;
     
-    @Column
-    String company_id;
+    @Column(name="company_id")
+    String companyId;
     
     @Column
     String manager_id;   
@@ -42,7 +42,7 @@ public class SquadModel {
         this.id = o.id();
         this.name = o.name();
         this.description = o.description();
-        this.company_id = o.company_id();
+        this.companyId = o.companyId();
         this.manager_id = o.manager_id();
     }
     
@@ -51,7 +51,7 @@ public class SquadModel {
             .id(id)
             .name(name)
             .description(description)
-            .company_id(company_id)
+            .companyId(companyId)
             .manager_id(manager_id)
             .build();
     }

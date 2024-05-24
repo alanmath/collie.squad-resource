@@ -10,7 +10,7 @@ public class SquadParser {
             .id(in.id())
             .name(in.name())
             .description(in.description())
-            .company_id(in.company_id())
+            .companyId(in.companyId())
             .manager_id(in.manager_id())
             .build();
     }
@@ -20,7 +20,7 @@ public class SquadParser {
             .id(in.id())
             .name(in.name())
             .description(in.description())
-            .company_id(in.company_id())
+            .companyId(in.companyId())
             .manager_id(in.manager_id())
             .build();
     }
@@ -31,7 +31,7 @@ public class SquadParser {
             .id(in.id())
             .name(in.name())
             .description(in.description())
-            .company_id(in.company_id())
+            .companyId(in.companyId())
             .company_name(c.name())
             .company_description(c.description())
             .manager_id(in.manager_id())

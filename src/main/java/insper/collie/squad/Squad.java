@@ -15,6 +15,6 @@ public class Squad {
     String id;
     String name;
     String description;
-    String company_id;
+    String companyId;
     String manager_id;    
 }

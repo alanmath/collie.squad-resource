@@ -122,5 +122,21 @@ public class SquadResource implements SquadController {
 
     List<SquadInfo> registeredSquads = squadService.registerSquadsFromCSV(file);
     return ResponseEntity.ok(registeredSquads);
-}
+    }
+
+    // get squads by company
+    @Override
+    @Operation(summary = "Obter Squads por Empresa", description = "Obtém uma lista de Squads de uma empresa específica.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de Squads encontrada", content = @Content(schema = @Schema(implementation = SquadInfo[].class))),
+            @ApiResponse(responseCode = "404", description = "Nenhum Squad encontrado")
+        })
+    public ResponseEntity<List<SquadInfo>> getSquadsByCompany(@Parameter(description = "ID da Company") String id) {
+        List<Squad> squads = squadService.getSquadsByCompany(id);
+        return ResponseEntity.ok(
+            squads.stream()
+                .map(SquadParser::to)
+                .collect(Collectors.toList())
+        );
+    }
 }

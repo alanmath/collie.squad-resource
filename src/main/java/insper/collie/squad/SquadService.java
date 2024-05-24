@@ -40,12 +40,12 @@ public class SquadService {
 
     public Squad create(Squad in) {
 
-        ResponseEntity<Boolean> responseCompany = companyController.isCompany(in.company_id());
+        ResponseEntity<Boolean> responseCompany = companyController.isCompany(in.companyId());
 
         // verifica se a empresa de fato existe
         if (responseCompany != null){
             if (!responseCompany.getBody()){
-                throw new CompanyNotFoundException(in.company_id());
+                throw new CompanyNotFoundException(in.companyId());
             }
         }else throw new RequestErrorException("Company");
 
@@ -67,8 +67,8 @@ public class SquadService {
         Squad squad = squadRepository.findById(id).map(SquadModel::to).orElse(null);
         if (squad == null) throw new SquadNotFoundException(id);
 
-        ResponseEntity<CompanyInfo> response = companyController.getCompany(squad.company_id());
-        if (response == null) throw new CompanyNotFoundException(squad.company_id());
+        ResponseEntity<CompanyInfo> response = companyController.getCompany(squad.companyId());
+        if (response == null) throw new CompanyNotFoundException(squad.companyId());
 
         CompanyInfo company = response.getBody();
 
@@ -113,8 +113,8 @@ public class SquadService {
         if(in.description() != null){
             squad.description(in.description());
         }
-        if(in.company_id() != null){
-            ResponseEntity<Boolean> response = companyController.isCompany(in.company_id());
+        if(in.companyId() != null){
+            ResponseEntity<Boolean> response = companyController.isCompany(in.companyId());
 
             // verifica se a empresa de fato existe
             if (response != null){
@@ -122,7 +122,7 @@ public class SquadService {
                     throw new CompanyNotFoundException(in.manager_id());
                 }
             }else throw new RequestErrorException("Company");
-            squad.company_id(in.company_id());
+            squad.companyId(in.companyId());
         }
         if(in.manager_id() != null){
             ResponseEntity<Boolean> responseA = accountController.isAccount(in.manager_id());
@@ -168,6 +168,19 @@ public class SquadService {
         } catch (Exception e) {
             throw new RuntimeException("Falha ao processar o arquivo CSV", e);
         }
+    }
+
+    public List<Squad> getSquadsByCompany(String id) {
+        List<Squad> squads = new ArrayList<Squad>();
+
+        // get all squads from company
+        for (SquadModel c : squadRepository.findAll()){
+            if (c.companyId().equals(id)){
+                squads.add(c.to());
+            }
+        };
+
+        return squads;
     }
     
     
