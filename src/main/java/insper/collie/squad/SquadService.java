@@ -2,6 +2,9 @@ package insper.collie.squad;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,14 +41,15 @@ public class SquadService {
     @Autowired
     private AccountController accountController;
 
+    @CachePut(value="squads", key = "#result.id")
     public Squad create(Squad in) {
 
-        ResponseEntity<Boolean> responseCompany = companyController.isCompany(in.companyId());
+        ResponseEntity<Boolean> responseCompany = companyController.isCompany(in.company_id());
 
         // verifica se a empresa de fato existe
         if (responseCompany != null){
             if (!responseCompany.getBody()){
-                throw new CompanyNotFoundException(in.companyId());
+                throw new CompanyNotFoundException(in.company_id());
             }
         }else throw new RequestErrorException("Company");
 
@@ -62,31 +66,19 @@ public class SquadService {
         return squadRepository.save(new SquadModel(in)).to();
     }
 
+    @Cacheable(value="squads", key="#id")
     @Transactional(readOnly = true)
-    public SquadAllInfo getSquad(String id) {
+    public Squad getSquad(String id) {
         Squad squad = squadRepository.findById(id).map(SquadModel::to).orElse(null);
         if (squad == null) throw new SquadNotFoundException(id);
-
-        ResponseEntity<CompanyInfo> response = companyController.getCompany(squad.companyId());
-        if (response == null) throw new CompanyNotFoundException(squad.companyId());
-
-        CompanyInfo company = response.getBody();
-
-        ResponseEntity<AccountOut> responseA = accountController.getAccount(squad.manager_id());
-        if (responseA == null) throw new AccountNotFoundException(squad.manager_id());
         
-        AccountOut manager = responseA.getBody();
-
-        SquadAllInfo squadAll = SquadParser.toAll(squad, company, manager);
-        
-        return squadAll;
+        return squad;
     }
 
     @Transactional(readOnly = true)
     public Boolean isSquad(String id){
         return squadRepository.existsById(id);
     }
-
 
 
     @Transactional(readOnly = true)
@@ -100,6 +92,7 @@ public class SquadService {
         return squads;
     }
 
+    @CachePut(value="squads", key = "#id", unless = "#result == null")
     @Transactional
     public Squad update(String id, Squad in) {
         SquadModel c = squadRepository.findById(id).orElse(null);
@@ -113,8 +106,8 @@ public class SquadService {
         if(in.description() != null){
             squad.description(in.description());
         }
-        if(in.companyId() != null){
-            ResponseEntity<Boolean> response = companyController.isCompany(in.companyId());
+        if(in.company_id() != null){
+            ResponseEntity<Boolean> response = companyController.isCompany(in.company_id());
 
             // verifica se a empresa de fato existe
             if (response != null){
@@ -122,7 +115,7 @@ public class SquadService {
                     throw new CompanyNotFoundException(in.manager_id());
                 }
             }else throw new RequestErrorException("Company");
-            squad.companyId(in.companyId());
+            squad.company_id(in.company_id());
         }
         if(in.manager_id() != null){
             ResponseEntity<Boolean> responseA = accountController.isAccount(in.manager_id());
@@ -139,8 +132,11 @@ public class SquadService {
         return squadRepository.save(squad).to();
     }
 
+
+    @CacheEvict(value="squads", key = "#id", condition = "#result != null")
     @Transactional
     public void delete(String id) {
+
         // SquadModel c = squadRepository.findById(id).orElse(null);
         if (squadRepository.existsById(id)) squadRepository.deleteById(id);
         throw new SquadNotFoundException(id);
@@ -170,12 +166,12 @@ public class SquadService {
         }
     }
 
-    public List<Squad> getSquadsByCompany(String id) {
+    public List<Squad> getSquadsByCompany(String id)  {
         List<Squad> squads = new ArrayList<Squad>();
 
         // get all squads from company
         for (SquadModel c : squadRepository.findAll()){
-            if (c.companyId().equals(id)){
+            if (c.company_id().equals(id)){
                 squads.add(c.to());
             }
         };

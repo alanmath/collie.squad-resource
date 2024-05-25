@@ -1,5 +1,7 @@
 package insper.collie.squad;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +21,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(of = "id")
 @Builder @Getter @Setter @Accessors(chain = true, fluent = true)
 @NoArgsConstructor @AllArgsConstructor
-public class SquadModel {
+public class SquadModel implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -33,7 +35,7 @@ public class SquadModel {
     String description;
     
     @Column(name="company_id")
-    String companyId;
+    String company_id;
     
     @Column
     String manager_id;   
@@ -42,7 +44,7 @@ public class SquadModel {
         this.id = o.id();
         this.name = o.name();
         this.description = o.description();
-        this.companyId = o.companyId();
+        this.company_id = o.company_id();
         this.manager_id = o.manager_id();
     }
     
@@ -51,7 +53,7 @@ public class SquadModel {
             .id(id)
             .name(name)
             .description(description)
-            .companyId(companyId)
+            .company_id(company_id)
             .manager_id(manager_id)
             .build();
     }

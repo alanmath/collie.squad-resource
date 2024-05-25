@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import insper.collie.account.AccountController;
+import insper.collie.account.AccountOut;
+import insper.collie.account.exceptions.AccountNotFoundException;
+import insper.collie.company.CompanyController;
+import insper.collie.company.CompanyInfo;
+import insper.collie.company.exceptions.CompanyNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +30,12 @@ public class SquadResource implements SquadController {
 
     @Autowired
     private SquadService squadService;
+
+    @Autowired
+    private CompanyController companyController;
+
+    @Autowired
+    private AccountController accountController;
 
     @Override
     @Operation(summary = "Criar um novo Squad", description = "Cria um novo Squad e retorna o objeto criado com seu ID.",
@@ -51,9 +63,22 @@ public class SquadResource implements SquadController {
             @ApiResponse(responseCode = "404", description = "Squad não encontrado")
         })
     public ResponseEntity<SquadAllInfo> getSquad(@Parameter(description = "ID do Squad a ser obtido") String id){
+        
+        Squad squad = squadService.getSquad(id);
 
-        SquadAllInfo squad = squadService.getSquad(id);
-        return ResponseEntity.ok(squad);
+        ResponseEntity<CompanyInfo> response = companyController.getCompany(squad.company_id());
+        if (response == null) throw new CompanyNotFoundException(squad.company_id());
+
+        CompanyInfo company = response.getBody();
+
+        ResponseEntity<AccountOut> responseA = accountController.getAccount(squad.manager_id());
+        if (responseA == null) throw new AccountNotFoundException(squad.manager_id());
+        
+        AccountOut manager = responseA.getBody();
+
+        SquadAllInfo squadAll = SquadParser.toAll(squad, company, manager);
+
+        return ResponseEntity.ok(squadAll);
     }
 
     @Override

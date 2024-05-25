@@ -1,6 +1,12 @@
 spring:
   application:
     name: collie-squad
+
+
+  redis:
+    host: redis
+    port: 6379
+
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/collie}
     username: ${DATABASE_USERNAME:collie}
